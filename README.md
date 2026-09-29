@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="brands/logo@2x.png" alt="What&#8217;s happening next?" width="340">
+  <img src="custom_components/whatshappening/brand/logo@2x.png" alt="What&#8217;s happening next?" width="340">
 </p>
 
 <!-- The HACS badge says "custom" rather than "default" on purpose: this
@@ -190,13 +190,12 @@ outside this codebase:
 - **Repository topics.** GitHub repository settings need topics such as
   `home-assistant`, `homeassistant`, `hacs`, `custom-component` and
   `integration`. The HACS validation fails without them.
-- **Brand assets.** Icon and logo are ready in [`brands/`](brands/) — they
-  still have to be added to the
-  [home-assistant/brands](https://github.com/home-assistant/brands)
-  repository via a pull request, because the frontend loads them from there.
-  [`brands/README.md`](brands/README.md) lists which file goes where. Until
-  that pull request is merged, the `brands` check is skipped in CI (see
-  `.github/workflows/ci.yml`); drop the `ignore:` line once it is.
+- **Brand assets.** Done: the icon and logo ship in
+  [`custom_components/whatshappening/brand/`](custom_components/whatshappening/brand),
+  which Home Assistant serves itself since 2026.3.0. Nothing has to be
+  submitted to [home-assistant/brands](https://github.com/home-assistant/brands)
+  — that repository no longer accepts custom integrations. See
+  [`brands/README.md`](brands/README.md) for the masters and the export script.
 
 ## License
 
