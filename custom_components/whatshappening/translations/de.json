@@ -1,0 +1,54 @@
+{
+  "title": "Was passiert gleich?",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Was passiert gleich?",
+        "description": "Lege fest, wie weit die Vorschau reicht und welche Quellen ausgewertet werden. Alles lässt sich später in den Optionen ändern.",
+        "data": {
+          "horizon_minutes": "Vorschau-Zeitraum",
+          "calendars": "Kalender",
+          "trend_sensors": "Sensoren für Trend-Vorhersage",
+          "travel_sensors": "Fahrzeit-Sensoren (Ankunft)",
+          "appliances": "Leistungssensoren von Geräten",
+          "remaining_sensors": "Restlaufzeit-Sensoren",
+          "appliance_threshold": "Schwelle, ab der ein Gerät läuft",
+          "appliance_cycle_minutes": "Typische Programmdauer",
+          "appliance_min_runtime_minutes": "Mindestlaufzeit vor einer Prognose",
+          "enable_sun": "Sonnenauf- und -untergang",
+          "enable_schedules": "Zeitpläne (schedule)",
+          "enable_timers": "Timer",
+          "enable_automations": "Automationen mit Zeit-/Sonnen-Trigger",
+          "enable_input_datetime": "input_datetime-Helfer"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Die Integration ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Was passiert gleich?",
+        "description": "Quellen und Zeitraum anpassen.",
+        "data": {
+          "horizon_minutes": "Vorschau-Zeitraum",
+          "calendars": "Kalender",
+          "trend_sensors": "Sensoren für Trend-Vorhersage",
+          "travel_sensors": "Fahrzeit-Sensoren (Ankunft)",
+          "appliances": "Leistungssensoren von Geräten",
+          "remaining_sensors": "Restlaufzeit-Sensoren",
+          "appliance_threshold": "Schwelle, ab der ein Gerät läuft",
+          "appliance_cycle_minutes": "Typische Programmdauer",
+          "appliance_min_runtime_minutes": "Mindestlaufzeit vor einer Prognose",
+          "enable_sun": "Sonnenauf- und -untergang",
+          "enable_schedules": "Zeitpläne (schedule)",
+          "enable_timers": "Timer",
+          "enable_automations": "Automationen mit Zeit-/Sonnen-Trigger",
+          "enable_input_datetime": "input_datetime-Helfer"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "domain": "whatshappening",
+  "name": "Was passiert gleich?",
+  "version": "1.0.0",
+  "documentation": "https://github.com/waerpi/home-assistant-whatshappening",
+  "issue_tracker": "https://github.com/waerpi/home-assistant-whatshappening/issues",
+  "codeowners": ["@waerpi"],
+  "config_flow": true,
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "dependencies": ["http", "frontend"],
+  "after_dependencies": [
+    "automation",
+    "calendar",
+    "input_datetime",
+    "person",
+    "schedule",
+    "sun",
+    "timer"
+  ],
+  "requirements": []
+}

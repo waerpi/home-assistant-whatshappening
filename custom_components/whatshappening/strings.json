@@ -1,0 +1,54 @@
+{
+  "title": "What's happening next?",
+  "config": {
+    "step": {
+      "user": {
+        "title": "What's happening next?",
+        "description": "Choose how far ahead to look and which sources to use. Everything can be changed later in the options.",
+        "data": {
+          "horizon_minutes": "Look-ahead window",
+          "calendars": "Calendars",
+          "trend_sensors": "Sensors for trend prediction",
+          "travel_sensors": "Travel time sensors (arrival)",
+          "appliances": "Appliance power sensors",
+          "remaining_sensors": "Remaining time sensors",
+          "appliance_threshold": "Power above which an appliance counts as running",
+          "appliance_cycle_minutes": "Typical cycle length",
+          "appliance_min_runtime_minutes": "Minimum runtime before predicting",
+          "enable_sun": "Sunrise and sunset",
+          "enable_schedules": "Schedules",
+          "enable_timers": "Timers",
+          "enable_automations": "Automations with time/sun triggers",
+          "enable_input_datetime": "input_datetime helpers"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "The integration is already set up."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "What's happening next?",
+        "description": "Adjust sources and window.",
+        "data": {
+          "horizon_minutes": "Look-ahead window",
+          "calendars": "Calendars",
+          "trend_sensors": "Sensors for trend prediction",
+          "travel_sensors": "Travel time sensors (arrival)",
+          "appliances": "Appliance power sensors",
+          "remaining_sensors": "Remaining time sensors",
+          "appliance_threshold": "Power above which an appliance counts as running",
+          "appliance_cycle_minutes": "Typical cycle length",
+          "appliance_min_runtime_minutes": "Minimum runtime before predicting",
+          "enable_sun": "Sunrise and sunset",
+          "enable_schedules": "Schedules",
+          "enable_timers": "Timers",
+          "enable_automations": "Automations with time/sun triggers",
+          "enable_input_datetime": "input_datetime helpers"
+        }
+      }
+    }
+  }
+}
