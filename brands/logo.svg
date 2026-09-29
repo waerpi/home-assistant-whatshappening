@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="256" viewBox="0 0 512 256">
+  <defs>
+    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E63FF"/>
+      <stop offset="1" stop-color="#16C9F0"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(24,52) scale(0.2969)">
+    <rect width="512" height="512" rx="116" fill="url(#badge)"/>
+    <g fill="none" stroke="#FFFFFF" stroke-linecap="round">
+      <path d="M 304.33 290.05 A 108 108 0 1 1 227.95 213.67" stroke-width="34"/>
+      <path d="M 200 318 L 279.2 238.8" stroke-width="30"/>
+    </g>
+    <g fill="#FFFFFF">
+      <circle cx="200" cy="318" r="17"/>
+      <circle cx="318.8" cy="199.2" r="22"/>
+      <circle cx="352.7" cy="165.3" r="16" opacity="0.72"/>
+      <circle cx="382.4" cy="135.6" r="11" opacity="0.45"/>
+    </g>
+  </g>
+
+  <g font-family="Liberation Sans, Arial, Helvetica, sans-serif" font-weight="700" font-size="48" letter-spacing="-1">
+    <text x="208" y="96"  fill="#2F7CF6">What&#8217;s</text>
+    <text x="208" y="150" fill="#2F7CF6">happening</text>
+    <text x="208" y="204" fill="#16C9F0">next?</text>
+  </g>
+</svg>

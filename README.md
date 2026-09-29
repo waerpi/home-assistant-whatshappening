@@ -182,11 +182,13 @@ outside this codebase:
 - **Repository topics.** GitHub repository settings need topics such as
   `home-assistant`, `homeassistant`, `hacs`, `custom-component` and
   `integration`. The HACS validation fails without them.
-- **Brand assets.** The `whatshappening` domain has to be added to the
+- **Brand assets.** Icon and logo are ready in [`brands/`](brands/) — they
+  still have to be added to the
   [home-assistant/brands](https://github.com/home-assistant/brands)
-  repository via a pull request, with an icon and a logo. Until that is
-  merged, the `brands` check is skipped in CI (see `.github/workflows/ci.yml`);
-  drop the `ignore:` line once it is.
+  repository via a pull request, because the frontend loads them from there.
+  [`brands/README.md`](brands/README.md) lists which file goes where. Until
+  that pull request is merged, the `brands` check is skipped in CI (see
+  `.github/workflows/ci.yml`); drop the `ignore:` line once it is.
 
 ## License
 
