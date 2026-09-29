@@ -156,6 +156,24 @@ The prediction maths (`predict.py`) and the text catalogue (`localization.py`)
 deliberately have no Home Assistant imports, so the tests run without a full
 Home Assistant install.
 
+CI runs the tests, Home Assistant's `hassfest` manifest validation and the
+HACS repository validation.
+
+## Publishing to HACS
+
+Installing from this repository as a custom repository works today. Getting
+listed in the HACS default store additionally needs two things that live
+outside this codebase:
+
+- **Repository topics.** GitHub repository settings need topics such as
+  `home-assistant`, `homeassistant`, `hacs`, `custom-component` and
+  `integration`. The HACS validation fails without them.
+- **Brand assets.** The `whatshappening` domain has to be added to the
+  [home-assistant/brands](https://github.com/home-assistant/brands)
+  repository via a pull request, with an icon and a logo. Until that is
+  merged, the `brands` check is skipped in CI (see `.github/workflows/ci.yml`);
+  drop the `ignore:` line once it is.
+
 ## License
 
 MIT

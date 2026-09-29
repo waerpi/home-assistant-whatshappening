@@ -29,3 +29,7 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
+          # `brands` requires the domain to be listed in home-assistant/brands,
+          # which is a pull request against that repository rather than
+          # anything in this one. See "Publishing to HACS" in the README.
+          ignore: brands

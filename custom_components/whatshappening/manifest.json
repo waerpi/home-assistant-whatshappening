@@ -1,14 +1,6 @@
 {
   "domain": "whatshappening",
   "name": "What's happening next?",
-  "version": "1.0.0",
-  "documentation": "https://github.com/waerpi/home-assistant-whatshappening",
-  "issue_tracker": "https://github.com/waerpi/home-assistant-whatshappening/issues",
-  "codeowners": ["@waerpi"],
-  "config_flow": true,
-  "integration_type": "service",
-  "iot_class": "calculated",
-  "dependencies": ["http", "frontend"],
   "after_dependencies": [
     "automation",
     "calendar",
@@ -18,5 +10,13 @@
     "sun",
     "timer"
   ],
-  "requirements": []
+  "codeowners": ["@waerpi"],
+  "config_flow": true,
+  "dependencies": ["http", "frontend"],
+  "documentation": "https://github.com/waerpi/home-assistant-whatshappening",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/waerpi/home-assistant-whatshappening/issues",
+  "requirements": [],
+  "version": "1.0.0"
 }
