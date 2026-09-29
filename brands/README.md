@@ -30,10 +30,25 @@ python3 export.py
 The images have to live in [home-assistant/brands][brands], not here — the
 frontend loads them from `brands.home-assistant.io`.
 
-1. Fork [home-assistant/brands][brands].
-2. Copy the four PNGs into `custom_integrations/whatshappening/`.
-3. Open a pull request.
-4. Once it is merged, drop the `ignore: brands` line from
-   `.github/workflows/ci.yml` so the HACS check covers it again.
+Fork the repository on GitHub, then, from a clone of *this* repository:
+
+```bash
+git clone git@github.com:<you>/brands.git ../brands
+cd ../brands
+git checkout -b whatshappening
+mkdir -p custom_integrations/whatshappening
+cp ../home-assistant-whatshappening/brands/{icon,icon@2x,logo,logo@2x}.png \
+   custom_integrations/whatshappening/
+git add custom_integrations/whatshappening
+git commit -m "Add What's happening next? brand assets"
+git push -u origin whatshappening
+```
+
+Then open the pull request against `home-assistant/brands`, titled
+`Add What's happening next? (whatshappening)`. Their CI checks the sizes and
+that the domain resolves to a real integration, so nothing else is needed.
+
+Once it is merged, drop the `ignore: brands` line from
+`.github/workflows/ci.yml` so the HACS check covers it again.
 
 [brands]: https://github.com/home-assistant/brands
