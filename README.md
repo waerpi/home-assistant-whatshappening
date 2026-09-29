@@ -181,22 +181,6 @@ Home Assistant install.
 CI runs the tests, Home Assistant's `hassfest` manifest validation and the
 HACS repository validation.
 
-## Publishing to HACS
-
-Installing from this repository as a custom repository works today. Getting
-listed in the HACS default store additionally needs two things that live
-outside this codebase:
-
-- **Repository topics.** GitHub repository settings need topics such as
-  `home-assistant`, `homeassistant`, `hacs`, `custom-component` and
-  `integration`. The HACS validation fails without them.
-- **Brand assets.** Done: the icon and logo ship in
-  [`custom_components/whatshappening/brand/`](custom_components/whatshappening/brand),
-  which Home Assistant serves itself since 2026.3.0. Nothing has to be
-  submitted to [home-assistant/brands](https://github.com/home-assistant/brands)
-  — that repository no longer accepts custom integrations. See
-  [`brands/README.md`](brands/README.md) for the masters and the export script.
-
 ## License
 
 MIT
