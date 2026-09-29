@@ -1,9 +1,17 @@
-# What's happening next? 🔮
+<p align="center">
+  <img src="brands/logo@2x.png" alt="What&#8217;s happening next?" width="340">
+</p>
 
-[![hacs][hacs-badge]][hacs-url]
-[![release][release-badge]][release-url]
-[![build][build-badge]][build-url]
-[![license][license-badge]][license-url]
+<!-- The HACS badge says "custom" rather than "default" on purpose: this
+     repository is installed as a custom repository. Switch it to
+     `hacs-default-orange` once it is accepted into the default store. -->
+
+<p align="center">
+  <a href="https://github.com/hacs/integration"><img src="https://img.shields.io/badge/hacs-custom-orange.svg?style=flat-square" alt="hacs"></a>
+  <a href="https://github.com/waerpi/home-assistant-whatshappening/releases"><img src="https://img.shields.io/github/v/release/waerpi/home-assistant-whatshappening?style=flat-square" alt="release"></a>
+  <a href="https://github.com/waerpi/home-assistant-whatshappening/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/waerpi/home-assistant-whatshappening/ci.yml?branch=main&style=flat-square" alt="build"></a>
+  <a href="https://github.com/waerpi/home-assistant-whatshappening/blob/main/LICENSE"><img src="https://img.shields.io/github/license/waerpi/home-assistant-whatshappening?style=flat-square" alt="license"></a>
+</p>
 
 A weather forecast for your home: instead of looking back at what happened,
 this Home Assistant integration shows a **timeline of the next few minutes** —
@@ -193,16 +201,3 @@ outside this codebase:
 ## License
 
 MIT
-
-<!-- Badges. The HACS badge says "custom" rather than "default" on purpose:
-     this repository is installed as a custom repository. Switch it to
-     `hacs-default-orange` once it is accepted into the default store. -->
-
-[hacs-url]: https://github.com/hacs/integration
-[hacs-badge]: https://img.shields.io/badge/hacs-custom-orange.svg?style=flat-square
-[release-url]: https://github.com/waerpi/home-assistant-whatshappening/releases
-[release-badge]: https://img.shields.io/github/v/release/waerpi/home-assistant-whatshappening?style=flat-square
-[build-url]: https://github.com/waerpi/home-assistant-whatshappening/actions/workflows/ci.yml
-[build-badge]: https://img.shields.io/github/actions/workflow/status/waerpi/home-assistant-whatshappening/ci.yml?branch=main&style=flat-square
-[license-url]: https://github.com/waerpi/home-assistant-whatshappening/blob/main/LICENSE
-[license-badge]: https://img.shields.io/github/license/waerpi/home-assistant-whatshappening?style=flat-square
