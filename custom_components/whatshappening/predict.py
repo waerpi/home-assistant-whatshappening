@@ -60,8 +60,3 @@ def parse_offset(value) -> timedelta:
     sign = -1 if match.group("sign") == "-" else 1
     hours, minutes, seconds = (int(part or 0) for part in match.groups()[1:])
     return sign * timedelta(hours=hours, minutes=minutes, seconds=seconds)
-
-
-def format_number(value: float) -> str:
-    """German formatting: one decimal, comma as the separator."""
-    return f"{value:.1f}".replace(".", ",")

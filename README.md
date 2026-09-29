@@ -1,81 +1,101 @@
-# Was passiert gleich? 🔮
+# What's happening next? 🔮
 
-Ein Wetterbericht für dein Zuhause: statt zurückzuschauen, was passiert ist,
-zeigt diese Home-Assistant-Integration eine **Timeline der nächsten Minuten** —
-zusammengesetzt aus Sonnenstand, Kalendern, Zeitplänen, Timern, Automationen,
-Fahrzeiten und dem Verhalten deiner Geräte.
+A weather forecast for your home: instead of looking back at what happened,
+this Home Assistant integration shows a **timeline of the next few minutes** —
+assembled from the sun, your calendars, schedules, timers, automations, travel
+times and how your appliances behave.
 
 ```
-In den nächsten 30 Minuten
+In the next 30 minutes
 
-🌅  Sonnenuntergang                      in 12 min
-💡  Außenbeleuchtung wird aktiviert      in 12 min
-🌡  Wohnzimmer vermutlich 21,8 °C        in 30 min
-🚗  Bartu kommt voraussichtlich nach Hause   in 18 min
-🔌  Waschmaschine vermutlich fertig      in 24 min
+🌅  Sunset                            in 12 min
+💡  Outdoor lighting turns on         in 12 min
+🌡  Living room likely 21.8 °C        in 30 min
+🚗  Alex is expected home             in 18 min
+🔌  Washing machine likely done       in 24 min
 ```
 
-## Was ausgewertet wird
+## What it looks at
 
-| Quelle | Woher die Vorhersage kommt | Sicher? |
+| Source | Where the prediction comes from | Certain? |
 | --- | --- | --- |
-| 🌅 Sonne | `sun.sun` (Auf-/Untergang, Dämmerung) | exakt |
-| 📅 Kalender | `calendar.get_events` für die gewählten Kalender | exakt |
-| 🗓 Zeitpläne | `next_event` der `schedule.*`-Helfer | exakt |
-| ⏲ Timer | `finishes_at` laufender `timer.*` | exakt |
-| ⏰ `input_datetime` | Zeitpunkt des Helfers | exakt |
-| 💡 Automationen | Zeit- und Sonnen-Trigger aus der Automations-Config | exakt bzw. wahrscheinlich, wenn Bedingungen enthalten sind |
-| 🚗 Ankunft | Fahrzeit-Sensor (Waze, Google Maps, HERE …) | Schätzung |
-| 🔌 Geräte | Restlaufzeit-Sensor, sonst Leistungsaufnahme + typische Programmdauer | Schätzung |
-| 🌡 Trends | lineare Extrapolation numerischer Sensoren | Schätzung |
+| 🌅 Sun | `sun.sun` (rise, set, dawn, dusk) | exact |
+| 📅 Calendars | `calendar.get_events` for the chosen calendars | exact |
+| 🗓 Schedules | `next_event` of `schedule.*` helpers | exact |
+| ⏲ Timers | `finishes_at` of running `timer.*` helpers | exact |
+| ⏰ `input_datetime` | the helper's point in time | exact |
+| 💡 Automations | time and sun triggers from the automation config | exact, or likely when the automation has conditions |
+| 🚗 Arrivals | a travel time sensor (Waze, Google Maps, HERE …) | estimate |
+| 🔌 Appliances | a remaining-time sensor, otherwise power draw plus a typical cycle length | estimate |
+| 🌡 Trends | linear extrapolation of numeric sensors | estimate |
 
-Alles, was keine harte Zusage ist, wird im Text als *vermutlich* bzw.
-*voraussichtlich* gekennzeichnet und in der Karte kursiv dargestellt.
+Anything short of a hard commitment is phrased as a guess ("likely",
+"expected") and shown in italics on the card.
+
+## Languages
+
+The integration is English by default and follows Home Assistant's configured
+language. German is included; the card's own wording and the generated event
+texts both switch with it:
+
+```
+Home Assistant set to German:   🌅  Sonnenuntergang        in 12 min
+Home Assistant set to English:  🌅  Sunset                 in 12 min
+```
+
+Decimal separators follow the language too — `21.8 °C` in English, `21,8 °C`
+in German.
+
+Adding a language means adding one block to `CATALOG` in
+`custom_components/whatshappening/localization.py` and one to `STRINGS` in
+`frontend/whatshappening-card.js`. Missing keys fall back to English one by
+one, so a partial translation is fine. The test suite checks that every
+language covers the full set of keys and uses the same placeholders.
 
 ## Installation
 
-### HACS (empfohlen)
+### HACS (recommended)
 
-1. HACS → Integrationen → ⋮ → *Benutzerdefinierte Repositories*
-2. `https://github.com/waerpi/home-assistant-whatshappening` als *Integration* hinzufügen
-3. „Was passiert gleich?" installieren und Home Assistant neu starten
+1. HACS → Integrations → ⋮ → *Custom repositories*
+2. Add `https://github.com/waerpi/home-assistant-whatshappening` as an *Integration*
+3. Install "What's happening next?" and restart Home Assistant
 
-### Manuell
+### Manual
 
-Den Ordner `custom_components/whatshappening` nach `<config>/custom_components/`
-kopieren und Home Assistant neu starten.
+Copy `custom_components/whatshappening` into `<config>/custom_components/` and
+restart Home Assistant.
 
-## Einrichtung
+## Setup
 
-*Einstellungen → Geräte & Dienste → Integration hinzufügen → „Was passiert gleich?"*
+*Settings → Devices & Services → Add Integration → "What's happening next?"*
 
-Im Dialog legst du fest:
+The dialog asks for:
 
-- **Vorschau-Zeitraum** – wie weit nach vorn geschaut wird (Standard: 30 Minuten)
-- **Kalender** – welche Kalender-Entitäten einbezogen werden
-- **Sensoren für Trend-Vorhersage** – z. B. `sensor.wohnzimmer_temperatur`
-- **Fahrzeit-Sensoren** – Sensoren, deren Zustand die Minuten bis nach Hause ist
-- **Leistungssensoren von Geräten** – z. B. `sensor.waschmaschine_power`
-- **Restlaufzeit-Sensoren** – falls das Gerät selbst eine Restzeit meldet
-- Schalter für Sonne, Zeitpläne, Timer, Automationen und `input_datetime`
+- **Look-ahead window** – how far ahead to look (default: 30 minutes)
+- **Calendars** – which calendar entities to include
+- **Sensors for trend prediction** – e.g. `sensor.living_room_temperature`
+- **Travel time sensors** – sensors whose state is the number of minutes to get home
+- **Appliance power sensors** – e.g. `sensor.washing_machine_power`
+- **Remaining time sensors** – if the appliance reports one itself
+- Toggles for sun, schedules, timers, automations and `input_datetime`
 
-Alle Werte sind später über *Konfigurieren* änderbar.
+Everything can be changed later via *Configure*.
 
-### Entitäten
+### Entities
 
-| Entität | Bedeutung |
+| Entity | Meaning |
 | --- | --- |
-| `sensor.was_passiert_gleich` | Anzahl der erwarteten Ereignisse, komplette Timeline im Attribut `events` |
-| `sensor.was_passiert_gleich_nachstes_ereignis` | Titel des nächsten Ereignisses, Details in den Attributen |
+| `sensor.what_s_happening` | Number of expected events, with the full timeline in the `events` attribute |
+| `sensor.what_s_happening_next_event` | Title of the next event, details in its attributes |
 
-Das Attribut `events` ist eine nach Zeit sortierte Liste:
+The `events` attribute is a list ordered by time:
 
 ```yaml
 events:
   - key: sun:next_setting
     when: "2026-09-29T19:42:00+02:00"
     in_minutes: 12.0
-    title: Sonnenuntergang
+    title: Sunset
     kind: sun
     icon: mdi:weather-sunset-down
     emoji: "🌅"
@@ -85,51 +105,57 @@ events:
     detail: null
 ```
 
-## Die Karte
+## The card
 
-Die Lovelace-Karte wird von der Integration selbst ausgeliefert und geladen —
-es muss keine Ressource von Hand eingetragen werden.
+The Lovelace card is served and loaded by the integration itself — there is no
+dashboard resource to register by hand.
 
 ```yaml
 type: custom:whatshappening-card
-entity: sensor.was_passiert_gleich
+entity: sensor.what_s_happening
 # optional:
-title: In den nächsten 30 Minuten   # sonst aus dem Zeitraum abgeleitet
-max: 8                              # maximal angezeigte Zeilen
-show_relative: true                 # "in 12 min" statt "19:42"
+title: In the next 30 minutes   # otherwise derived from the window
+max: 8                          # rows to show at most
+show_relative: true             # "in 12 min" instead of "19:42"
 ```
 
-Ein Klick auf eine Zeile öffnet den Dialog der zugehörigen Entität.
+Clicking a row opens the more-info dialog of the entity behind it.
 
-## Wie die Schätzungen funktionieren
+If the card reports `Custom element doesn't exist` right after installing or
+updating, the browser is still showing the page it had before the module was
+registered — reload with Ctrl+Shift+R.
 
-**Geräte.** Meldet das Gerät eine Restlaufzeit, wird sie direkt genutzt.
-Sonst gilt es als laufend, sobald die Leistungsaufnahme über der Schwelle
-liegt; kurze Pausen im Programm (Heizen, Schleudern) von bis zu fünf Minuten
-beenden den Lauf nicht. Das Ende ergibt sich aus Startzeitpunkt plus
-typischer Programmdauer.
+## How the estimates work
 
-**Trends.** Über die Messwerte der letzten 45 Minuten wird eine
-Ausgleichsgerade gelegt und auf das Ende des Zeitraums verlängert. Liegt die
-Änderung unter 0,3 Einheiten, taucht sie gar nicht erst auf; das
-Bestimmtheitsmaß der Geraden entscheidet, wie sicher die Angabe gilt.
+**Appliances.** If the appliance reports a remaining time, that value is used
+directly. Otherwise it counts as running while its power draw is above the
+threshold; short pauses within a cycle (heating, spinning) of up to five
+minutes do not end the run. The finish time is the start plus the typical
+cycle length.
 
-**Ankunft.** Ein Fahrzeit-Sensor liefert die Minuten bis nach Hause. Lässt
-sich dem Sensor über den Namen eine `person`-Entität zuordnen, wird das
-Ereignis unterdrückt, sobald die Person zu Hause ist.
+**Trends.** A least-squares line is fitted through the readings of the last 45
+minutes and extended to the end of the window. Changes below 0.3 units are not
+reported at all, and the fit's r² decides how much the estimate is trusted.
 
-**Automationen.** Ausgelesen werden `time`- und `sun`-Trigger inklusive
-Offsets und Verweisen auf `input_datetime`-Helfer. Deaktivierte Automationen
-werden übersprungen; enthält eine Automation Bedingungen, gilt das Ereignis
-als wahrscheinlich statt sicher.
+**Arrivals.** A travel time sensor gives the minutes to get home. If a `person`
+entity can be matched to the sensor by name, the event disappears once that
+person is home.
 
-## Entwicklung
+**Automations.** `time` and `sun` triggers are read, including offsets and
+references to `input_datetime` helpers. Disabled automations are skipped, and
+an automation with conditions is reported as likely rather than certain.
+
+## Development
 
 ```bash
 pip install -r requirements_test.txt
 pytest
 ```
 
-## Lizenz
+The prediction maths (`predict.py`) and the text catalogue (`localization.py`)
+deliberately have no Home Assistant imports, so the tests run without a full
+Home Assistant install.
+
+## License
 
 MIT

@@ -66,7 +66,7 @@ class AutomationProvider(EventProvider):
                             icon=state.attributes.get("icon") or "mdi:robot",
                             emoji="💡",
                             entity_id=entity_id,
-                            detail="Automation",
+                            detail=self.tr("automation.detail"),
                             # Conditions inside the automation may still veto it.
                             confidence=CONFIDENCE_LIKELY if conditional else 1.0,
                         )

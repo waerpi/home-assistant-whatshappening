@@ -61,8 +61,8 @@ KIND_PRESENCE = "presence"
 KIND_APPLIANCE = "appliance"
 KIND_TREND = "trend"
 
-# How certain a prediction is. Everything below 1.0 is rendered as
-# "vermutlich" / "voraussichtlich" in the frontend card.
+# How certain a prediction is. Anything below 1.0 is phrased as a guess
+# ("likely", "expected") and rendered in italics by the card.
 CONFIDENCE_CERTAIN = 1.0
 CONFIDENCE_LIKELY = 0.7
 CONFIDENCE_GUESS = 0.4

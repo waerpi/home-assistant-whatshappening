@@ -10,13 +10,14 @@ from ..const import CONF_ENABLE_SUN, KIND_SUN
 from ..models import UpcomingEvent
 from .base import EventProvider
 
-# attribute -> (title, emoji, icon)
+# attribute of `sun.sun` -> (emoji, icon); the title comes from the catalogue
+# under the key "sun.<attribute>".
 SUN_EVENTS = {
-    "next_rising": ("Sonnenaufgang", "🌄", "mdi:weather-sunset-up"),
-    "next_setting": ("Sonnenuntergang", "🌅", "mdi:weather-sunset-down"),
-    "next_dawn": ("Morgendämmerung", "🌆", "mdi:weather-sunset-up"),
-    "next_dusk": ("Abenddämmerung", "🌇", "mdi:weather-sunset-down"),
-    "next_noon": ("Sonnenhöchststand", "☀️", "mdi:weather-sunny"),
+    "next_rising": ("🌄", "mdi:weather-sunset-up"),
+    "next_setting": ("🌅", "mdi:weather-sunset-down"),
+    "next_dawn": ("🌆", "mdi:weather-sunset-up"),
+    "next_dusk": ("🌇", "mdi:weather-sunset-down"),
+    "next_noon": ("☀️", "mdi:weather-sunny"),
 }
 
 
@@ -37,7 +38,7 @@ class SunProvider(EventProvider):
             return []
 
         events: list[UpcomingEvent] = []
-        for attribute, (title, emoji, icon) in SUN_EVENTS.items():
+        for attribute, (emoji, icon) in SUN_EVENTS.items():
             raw = state.attributes.get(attribute)
             if not raw:
                 continue
@@ -48,7 +49,7 @@ class SunProvider(EventProvider):
                 UpcomingEvent(
                     key=f"sun:{attribute}",
                     when=dt_util.as_local(when),
-                    title=title,
+                    title=self.tr(f"sun.{attribute}"),
                     kind=KIND_SUN,
                     icon=icon,
                     emoji=emoji,

@@ -1,14 +1,52 @@
 /**
- * "Was passiert gleich?" — a timeline of the events expected in the next
+ * "What's happening next?" — a timeline of the events expected in the next
  * few minutes, read from the sensor the integration provides.
  *
  * Usage:
  *   type: custom:whatshappening-card
- *   entity: sensor.was_passiert_gleich
- *   title: In den nächsten 30 Minuten   # optional, derived when omitted
- *   max: 8                              # optional, rows to show
- *   show_relative: true                 # optional, "in 12 min" vs "19:42"
+ *   entity: sensor.what_s_happening
+ *   title: In the next 30 minutes   # optional, derived when omitted
+ *   max: 8                          # optional, rows to show
+ *   show_relative: true             # optional, "in 12 min" vs "19:42"
+ *
+ * Event titles arrive already translated from the integration; the strings
+ * below are the card's own, and follow the same Home Assistant language.
  */
+
+const STRINGS = {
+  en: {
+    heading: "What's happening next?",
+    horizon: (minutes) => `In the next ${minutes} minutes`,
+    empty: "Nothing planned in this window.",
+    missing: (entity) => `Entity <code>${entity}</code> not found.`,
+    config: "Please set an entity, e.g. sensor.what_s_happening",
+    now: "now",
+    minutes: (value) => `in ${value} min`,
+    hours: (value) => `in ${value} h`,
+    hoursMinutes: (hours, minutes) => `in ${hours} h ${minutes} min`,
+    cardName: "What's happening next?",
+    cardDescription: "Timeline of the events expected in the next minutes",
+  },
+  de: {
+    heading: "Was passiert gleich?",
+    horizon: (minutes) => `In den nächsten ${minutes} Minuten`,
+    empty: "Nichts Geplantes in diesem Zeitraum.",
+    missing: (entity) => `Entität <code>${entity}</code> nicht gefunden.`,
+    config: "Bitte eine entity angeben, z. B. sensor.what_s_happening",
+    now: "jetzt",
+    minutes: (value) => `in ${value} min`,
+    hours: (value) => `in ${value} Std`,
+    hoursMinutes: (hours, minutes) => `in ${hours} Std ${minutes} min`,
+    cardName: "Was passiert gleich?",
+    cardDescription: "Timeline der Ereignisse in den nächsten Minuten",
+  },
+};
+
+/** Falls back to English key by key, so a partial translation still works. */
+function strings(language) {
+  const code = String(language || "en").replace("_", "-").split("-")[0].toLowerCase();
+  return { ...STRINGS.en, ...(STRINGS[code] || {}) };
+}
 
 const STYLES = `
   ha-card {
@@ -80,7 +118,7 @@ class WhatsHappeningCard extends HTMLElement {
 
   setConfig(config) {
     if (!config || !config.entity) {
-      throw new Error("Bitte eine entity angeben, z. B. sensor.was_passiert_gleich");
+      throw new Error(strings(this._hass?.locale?.language).config);
     }
     this._config = {
       max: 10,
@@ -101,10 +139,10 @@ class WhatsHappeningCard extends HTMLElement {
   }
 
   static getStubConfig(hass) {
-    const entity = Object.keys(hass.states).find((id) =>
-      id.startsWith("sensor.was_passiert_gleich")
+    const entity = Object.keys(hass.states).find(
+      (id) => id.startsWith("sensor.") && hass.states[id].attributes.events
     );
-    return { entity: entity || "sensor.was_passiert_gleich" };
+    return { entity: entity || "sensor.what_s_happening" };
   }
 
   connectedCallback() {
@@ -141,10 +179,12 @@ class WhatsHappeningCard extends HTMLElement {
     const state = this._state();
     if (!this._hass) return;
 
+    const text = strings(this._hass.locale?.language);
+
     if (!state) {
       this._paint(
-        `<div class="empty">Entität <code>${this._config.entity}</code> nicht gefunden.</div>`,
-        this._config.title || "Was passiert gleich?"
+        `<div class="empty">${text.missing(this._config.entity)}</div>`,
+        this._config.title || text.heading
       );
       return;
     }
@@ -152,14 +192,11 @@ class WhatsHappeningCard extends HTMLElement {
     const horizon = state.attributes.horizon_minutes;
     const heading =
       this._config.title ||
-      (horizon ? `In den nächsten ${horizon} Minuten` : "Was passiert gleich?");
+      (horizon ? text.horizon(horizon) : text.heading);
 
     const events = this._events().slice(0, this._config.max);
     if (events.length === 0) {
-      this._paint(
-        '<div class="empty">Nichts Geplantes in diesem Zeitraum.</div>',
-        heading
-      );
+      this._paint(`<div class="empty">${text.empty}</div>`, heading);
       return;
     }
 
@@ -196,18 +233,18 @@ class WhatsHappeningCard extends HTMLElement {
       });
     }
 
+    const text = strings(this._locale());
     const minutes = Math.round((when.getTime() - Date.now()) / 60000);
-    if (minutes <= 0) return "jetzt";
-    if (minutes === 1) return "in 1 min";
-    if (minutes < 60) return `in ${minutes} min`;
+    if (minutes <= 0) return text.now;
+    if (minutes < 60) return text.minutes(minutes);
 
     const hours = Math.floor(minutes / 60);
     const rest = minutes % 60;
-    return rest ? `in ${hours} Std ${rest} min` : `in ${hours} Std`;
+    return rest ? text.hoursMinutes(hours, rest) : text.hours(hours);
   }
 
   _locale() {
-    return this._hass?.locale?.language || "de";
+    return this._hass?.locale?.language || "en";
   }
 
   _paint(body, heading) {
@@ -259,8 +296,8 @@ window.customCards = window.customCards || [];
 if (!window.customCards.some((card) => card.type === "whatshappening-card")) {
   window.customCards.push({
     type: "whatshappening-card",
-    name: "Was passiert gleich?",
-    description: "Timeline der Ereignisse in den nächsten Minuten",
+    name: STRINGS.en.cardName,
+    description: STRINGS.en.cardDescription,
     preview: false,
   });
 }

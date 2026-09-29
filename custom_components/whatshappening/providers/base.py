@@ -7,6 +7,7 @@ from datetime import datetime
 
 from homeassistant.core import HomeAssistant, State
 
+from ..localization import format_number, translate
 from ..models import UpcomingEvent
 
 _LOGGER = logging.getLogger(__name__)
@@ -49,6 +50,19 @@ class EventProvider:
         self, now: datetime, horizon_end: datetime
     ) -> list[UpcomingEvent]:
         raise NotImplementedError
+
+    # --- localization ---------------------------------------------------
+
+    @property
+    def language(self) -> str:
+        """The language Home Assistant is set to, read fresh each refresh."""
+        return self.hass.config.language
+
+    def tr(self, key: str, **placeholders: object) -> str:
+        return translate(self.language, key, **placeholders)
+
+    def number(self, value: float) -> str:
+        return format_number(value, self.language)
 
     # --- helpers --------------------------------------------------------
 

@@ -20,7 +20,7 @@ from ..const import (
     TREND_WINDOW,
 )
 from ..models import UpcomingEvent
-from ..predict import format_number, linear_fit
+from ..predict import linear_fit
 from .base import EventProvider
 
 ICONS = {
@@ -79,19 +79,24 @@ class TrendProvider(EventProvider):
             device_class = str(attributes.get("device_class") or "")
             unit = str(attributes.get("unit_of_measurement") or "").strip()
             name = self.friendly_name(entity_id)
-            value = format_number(predicted)
 
             events.append(
                 UpcomingEvent(
                     key=f"trend:{entity_id}",
                     when=horizon_end,
-                    title=f"{name} vermutlich {value}{' ' + unit if unit else ''}",
+                    title=self.tr(
+                        "trend.prediction",
+                        name=name,
+                        value=self._with_unit(predicted, unit),
+                    ),
                     kind=KIND_TREND,
                     icon=ICONS.get(device_class, "mdi:chart-line"),
                     emoji=EMOJIS.get(device_class, "📈"),
                     entity_id=entity_id,
-                    detail=f"aktuell {format_number(current)}"
-                    + (f" {unit}" if unit else ""),
+                    detail=self.tr(
+                        "trend.detail_current",
+                        value=self._with_unit(current, unit),
+                    ),
                     confidence=(
                         CONFIDENCE_LIKELY if quality >= 0.8 else CONFIDENCE_GUESS
                     ),
@@ -103,6 +108,9 @@ class TrendProvider(EventProvider):
                 )
             )
         return events
+
+    def _with_unit(self, value: float, unit: str) -> str:
+        return f"{self.number(value)} {unit}".strip()
 
     def _record(self, entity_id: str, now: datetime) -> list[tuple[float, float]]:
         """Append the current reading and drop everything past the window."""

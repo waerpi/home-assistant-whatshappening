@@ -44,7 +44,10 @@ class ScheduleProvider(EventProvider):
                 UpcomingEvent(
                     key=f"schedule:{state.entity_id}",
                     when=dt_util.as_local(when),
-                    title=f"{name} {'startet' if turning_on else 'endet'}",
+                    title=self.tr(
+                        "schedule.starts" if turning_on else "schedule.ends",
+                        name=name,
+                    ),
                     kind=KIND_SCHEDULE,
                     icon="mdi:calendar-clock",
                     emoji="🗓",
@@ -80,7 +83,9 @@ class TimerProvider(EventProvider):
                 UpcomingEvent(
                     key=f"timer:{state.entity_id}",
                     when=dt_util.as_local(when),
-                    title=f"{self.friendly_name(state.entity_id)} abgelaufen",
+                    title=self.tr(
+                        "timer.finished", name=self.friendly_name(state.entity_id)
+                    ),
                     kind=KIND_TIMER,
                     icon="mdi:timer-outline",
                     emoji="⏲",

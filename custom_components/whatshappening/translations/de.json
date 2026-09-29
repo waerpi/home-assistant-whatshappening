@@ -50,5 +50,12 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "next_event": {
+        "name": "Nächstes Ereignis"
+      }
+    }
   }
 }

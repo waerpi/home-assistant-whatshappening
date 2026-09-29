@@ -47,7 +47,7 @@ class CalendarProvider(EventProvider):
                 when = self._start_of(entry)
                 if when is None:
                     continue
-                summary = entry.get("summary") or "Termin"
+                summary = entry.get("summary") or self.tr("calendar.untitled")
                 events.append(
                     UpcomingEvent(
                         key=f"calendar:{entity_id}:{summary}:{when.isoformat()}",

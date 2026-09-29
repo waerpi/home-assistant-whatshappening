@@ -96,12 +96,12 @@ class ApplianceProvider(EventProvider):
                     UpcomingEvent(
                         key=f"appliance:{entity_id}",
                         when=remaining,
-                        title=f"{name} fertig",
+                        title=self.tr("appliance.done", name=name),
                         kind=KIND_APPLIANCE,
                         icon="mdi:washing-machine",
                         emoji="🔌",
                         entity_id=entity_id,
-                        detail="laut Restlaufzeit",
+                        detail=self.tr("appliance.detail_remaining"),
                         confidence=CONFIDENCE_LIKELY,
                     )
                 )
@@ -113,12 +113,12 @@ class ApplianceProvider(EventProvider):
                 UpcomingEvent(
                     key=f"appliance:{entity_id}",
                     when=run["started_at"] + self.cycle,
-                    title=f"{name} vermutlich fertig",
+                    title=self.tr("appliance.done_estimated", name=name),
                     kind=KIND_APPLIANCE,
                     icon="mdi:washing-machine",
                     emoji="🔌",
                     entity_id=entity_id,
-                    detail="geschätzt aus der Laufzeit",
+                    detail=self.tr("appliance.detail_estimated"),
                     confidence=CONFIDENCE_GUESS,
                 )
             )

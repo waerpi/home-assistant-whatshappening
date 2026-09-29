@@ -66,12 +66,12 @@ class PresenceProvider(EventProvider):
                 UpcomingEvent(
                     key=f"presence:{entity_id}",
                     when=now + timedelta(minutes=minutes),
-                    title=f"{name} kommt voraussichtlich nach Hause",
+                    title=self.tr("presence.arriving", name=name),
                     kind=KIND_PRESENCE,
                     icon="mdi:car-back",
                     emoji="🚗",
                     entity_id=entity_id,
-                    detail=f"{round(minutes)} min Fahrzeit",
+                    detail=self.tr("presence.detail", minutes=round(minutes)),
                     confidence=CONFIDENCE_LIKELY,
                 )
             )

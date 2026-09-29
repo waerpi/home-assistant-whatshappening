@@ -40,7 +40,7 @@ from .const import (
     DOMAIN,
 )
 
-TITLE = "Was passiert gleich?"
+TITLE = "What's happening next?"
 
 
 def _sensors(**kwargs: Any) -> EntitySelector:

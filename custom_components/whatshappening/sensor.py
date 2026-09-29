@@ -40,7 +40,7 @@ class WhatsHappeningEntity(CoordinatorEntity[WhatsHappeningCoordinator], SensorE
         self._entry = entry
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name="Was passiert gleich?",
+            name="What's happening",
             manufacturer="whatshappening",
             entry_type=DeviceEntryType.SERVICE,
         )
@@ -53,10 +53,9 @@ class WhatsHappeningEntity(CoordinatorEntity[WhatsHappeningCoordinator], SensorE
 class UpcomingEventsSensor(WhatsHappeningEntity):
     """How many events are expected, with the full timeline in attributes."""
 
-    # Named after the device, so it becomes `sensor.was_passiert_gleich`.
+    # Named after the device, so it becomes `sensor.what_s_happening`.
     _attr_name = None
     _attr_icon = "mdi:timeline-clock-outline"
-    _attr_native_unit_of_measurement = "Ereignisse"
 
     def __init__(self, coordinator, entry) -> None:
         super().__init__(coordinator, entry)
@@ -80,7 +79,7 @@ class UpcomingEventsSensor(WhatsHappeningEntity):
 class NextEventSensor(WhatsHappeningEntity):
     """The single next thing that is going to happen."""
 
-    _attr_name = "Nächstes Ereignis"
+    _attr_translation_key = "next_event"
     _attr_icon = "mdi:progress-clock"
 
     def __init__(self, coordinator, entry) -> None:

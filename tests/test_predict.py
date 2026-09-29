@@ -65,15 +65,6 @@ class TestParseOffset:
     def test_supported_spellings(self, value, expected):
         assert predict.parse_offset(value) == expected
 
-    @pytest.mark.parametrize("value", ["bald", "", {"nonsense": "x"}, True])
+    @pytest.mark.parametrize("value", ["soon", "", {"nonsense": "x"}, True])
     def test_unparseable_offsets_are_ignored(self, value):
         assert predict.parse_offset(value) == timedelta()
-
-
-class TestFormatNumber:
-    @pytest.mark.parametrize(
-        ("value", "expected"),
-        [(21.84, "21,8"), (21.0, "21,0"), (-3.27, "-3,3"), (100.0, "100,0")],
-    )
-    def test_german_decimal_separator(self, value, expected):
-        assert predict.format_number(value) == expected

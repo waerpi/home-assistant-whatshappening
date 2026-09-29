@@ -21,7 +21,7 @@ class UpcomingEvent:
     """When the event is expected (timezone aware)."""
 
     title: str
-    """Human readable one-liner, e.g. "Sonnenuntergang"."""
+    """Human readable one-liner, already translated, e.g. "Sunset"."""
 
     kind: str
     """One of the KIND_* constants — used for grouping and card styling."""
