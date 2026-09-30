@@ -20,6 +20,7 @@ from .const import (
 )
 from .models import UpcomingEvent
 from .providers import PROVIDERS, EventProvider
+from .storage import MemoryStore
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,8 +37,32 @@ class WhatsHappeningCoordinator(DataUpdateCoordinator[list[UpcomingEvent]]):
         )
         self.entry = entry
         self._memory: dict = {}
+        self._store = MemoryStore(hass)
         self._providers: list[EventProvider] = []
         self.reload_providers()
+
+    # --- persistence ----------------------------------------------------
+
+    async def async_load_memory(self) -> None:
+        """Read the observations of the last run back in, before refreshing."""
+        stored = await self._store.async_load()
+        if not stored:
+            return
+        self._memory.update(stored)
+        # The providers were built around the empty dict, so hand them the
+        # namespaces that have just appeared in it.
+        self.reload_providers()
+
+    async def async_save_memory(self) -> None:
+        await self._store.async_save(self._persistable())
+
+    def _persistable(self) -> dict:
+        """The provider namespaces that asked to be kept."""
+        return {
+            provider.name: self._memory.get(provider.name, {})
+            for provider in self._providers
+            if provider.persist
+        }
 
     # --- configuration --------------------------------------------------
 
@@ -72,6 +97,7 @@ class WhatsHappeningCoordinator(DataUpdateCoordinator[list[UpcomingEvent]]):
                 for provider in self._providers
             )
         )
+        self._store.async_schedule_save(self._persistable())
         return _merge([event for events in results for event in events])
 
 

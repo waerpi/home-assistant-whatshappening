@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, PLATFORMS
 from .coordinator import WhatsHappeningCoordinator
+from .storage import MemoryStore
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await _async_register_card(hass)
 
     coordinator = WhatsHappeningCoordinator(hass, entry)
+    await coordinator.async_load_memory()
     await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
@@ -32,8 +34,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
-        hass.data[DOMAIN].pop(entry.entry_id, None)
+        coordinator = hass.data[DOMAIN].pop(entry.entry_id, None)
+        if coordinator is not None:
+            # Flush what the providers have observed since the last write.
+            await coordinator.async_save_memory()
     return unloaded
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Leave no observations behind when the integration is removed."""
+    await MemoryStore(hass).async_remove()
 
 
 async def _async_options_updated(hass: HomeAssistant, entry: ConfigEntry) -> None:

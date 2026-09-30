@@ -68,3 +68,59 @@ class TestParseOffset:
     @pytest.mark.parametrize("value", ["soon", "", {"nonsense": "x"}, True])
     def test_unparseable_offsets_are_ignored(self, value):
         assert predict.parse_offset(value) == timedelta()
+
+
+class TestMinutesFrom:
+    @pytest.mark.parametrize(
+        ("value", "unit", "expected"),
+        [
+            (12, "min", 12),
+            (12, "minutes", 12),
+            (12, "Minuten", 12),
+            (90, "s", 1.5),
+            (90, "seconds", 1.5),
+            (2, "h", 120),
+            (2, "Stunden", 120),
+            (1.5, "hrs.", 90),
+        ],
+    )
+    def test_converts_to_minutes(self, value, unit, expected):
+        assert predict.minutes_from(value, unit) == pytest.approx(expected)
+
+    @pytest.mark.parametrize("unit", [None, "", "  ", "km", "unknown"])
+    def test_falls_back_to_minutes(self, unit):
+        # A travel time sensor without a usable unit is almost always
+        # reporting minutes, so that is the safer reading.
+        assert predict.minutes_from(12, unit) == 12
+
+    def test_no_reading_stays_no_reading(self):
+        assert predict.minutes_from(None, "min") is None
+
+
+class TestMergeSamples:
+    def test_orders_and_combines_both_series(self):
+        merged = predict.merge_samples([(30.0, 2.0)], [(10.0, 1.0), (20.0, 1.5)])
+        assert merged == [(10.0, 1.0), (20.0, 1.5), (30.0, 2.0)]
+
+    def test_primary_wins_on_a_shared_timestamp(self):
+        # The live reading is the one that was actually observed now; the
+        # recorder's copy of the same moment must not overwrite it.
+        merged = predict.merge_samples([(10.0, 9.0)], [(10.0, 1.0)])
+        assert merged == [(10.0, 9.0)]
+
+    def test_drops_samples_before_the_cutoff(self):
+        merged = predict.merge_samples(
+            [(30.0, 2.0)], [(5.0, 0.5), (10.0, 1.0)], cutoff=10.0
+        )
+        assert merged == [(10.0, 1.0), (30.0, 2.0)]
+
+    def test_empty_series_are_fine(self):
+        assert predict.merge_samples([], []) == []
+
+    def test_result_feeds_straight_into_a_fit(self):
+        merged = predict.merge_samples(
+            [(180.0, 23.0)], [(0.0, 20.0), (60.0, 21.0), (120.0, 22.0)]
+        )
+        slope, _, quality = predict.linear_fit(merged)
+        assert slope == pytest.approx(1 / 60)
+        assert quality == pytest.approx(1.0)
