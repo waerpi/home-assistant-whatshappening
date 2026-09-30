@@ -56,6 +56,10 @@ class UpcomingEventsSensor(WhatsHappeningEntity):
     # Named after the device, so it becomes `sensor.what_s_happening`.
     _attr_name = None
     _attr_icon = "mdi:timeline-clock-outline"
+    # The timeline is rebuilt every 30 seconds and can be several kilobytes.
+    # Keeping it out of the database saves a row of it per refresh; the
+    # attribute is still there for templates and for the card.
+    _unrecorded_attributes = frozenset({"events", "generated_at"})
 
     def __init__(self, coordinator, entry) -> None:
         super().__init__(coordinator, entry)
@@ -81,6 +85,9 @@ class NextEventSensor(WhatsHappeningEntity):
 
     _attr_translation_key = "next_event"
     _attr_icon = "mdi:progress-clock"
+    # `in_minutes` counts down on every refresh, which would otherwise write
+    # a new row even while the next event itself has not changed.
+    _unrecorded_attributes = frozenset({"in_minutes"})
 
     def __init__(self, coordinator, entry) -> None:
         super().__init__(coordinator, entry)

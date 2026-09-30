@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 
 from ..const import CONF_TRAVEL_SENSORS, CONFIDENCE_LIKELY, KIND_PRESENCE
 from ..models import UpcomingEvent
+from ..predict import minutes_from
 from .base import EventProvider
 
 # Words dropped when matching a travel sensor against a person entity.
@@ -49,7 +50,7 @@ class PresenceProvider(EventProvider):
     ) -> list[UpcomingEvent]:
         events: list[UpcomingEvent] = []
         for entity_id in self.entities:
-            minutes = self.float_state(entity_id)
+            minutes = self._minutes_to_go(entity_id)
             if minutes is None or minutes < 0:
                 continue
 
@@ -76,6 +77,16 @@ class PresenceProvider(EventProvider):
                 )
             )
         return events
+
+    def _minutes_to_go(self, entity_id: str) -> float | None:
+        """The sensor's travel time in minutes, whatever unit it reports in."""
+        state = self.state_of(entity_id)
+        if state is None:
+            return None
+        return minutes_from(
+            self.float_state(entity_id),
+            state.attributes.get("unit_of_measurement"),
+        )
 
     # --- matching a sensor to a person ----------------------------------
 

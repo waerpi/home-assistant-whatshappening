@@ -8,7 +8,9 @@ much to trust it.
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
+from functools import partial
 
 from ..const import (
     CONF_TREND_SENSORS,
@@ -20,8 +22,14 @@ from ..const import (
     TREND_WINDOW,
 )
 from ..models import UpcomingEvent
-from ..predict import linear_fit
+from ..predict import linear_fit, merge_samples
 from .base import EventProvider
+
+_LOGGER = logging.getLogger(__name__)
+
+# Key under which the memory notes which sensors have already been seeded
+# from the recorder. An entity id always contains a dot, so it cannot clash.
+SEEDED = "seeded"
 
 ICONS = {
     "temperature": "mdi:thermometer",
@@ -57,6 +65,8 @@ class TrendProvider(EventProvider):
     async def async_get_events(
         self, now: datetime, horizon_end: datetime
     ) -> list[UpcomingEvent]:
+        await self._async_seed(now)
+
         events: list[UpcomingEvent] = []
         for entity_id in self.entities:
             samples = self._record(entity_id, now)
@@ -112,6 +122,63 @@ class TrendProvider(EventProvider):
     def _with_unit(self, value: float, unit: str) -> str:
         return f"{self.number(value)} {unit}".strip()
 
+    # --- history --------------------------------------------------------
+
+    async def _async_seed(self, now: datetime) -> None:
+        """Prime the sample buffer from the recorder, once per sensor.
+
+        Without this a trend only appears a couple of refreshes after a
+        restart, because the buffer has to fill from scratch first. The
+        recorder already knows where the sensor has been, so the trend can
+        be there from the first refresh instead.
+        """
+        seeded: set[str] = self.memory.setdefault(SEEDED, set())
+        pending = [entity for entity in self.entities if entity not in seeded]
+        if not pending:
+            return
+
+        # Mark first: a recorder that is missing or failing should cost one
+        # attempt, not one attempt per refresh, forever.
+        seeded.update(pending)
+
+        history = await self._async_history(pending, now)
+        cutoff = now.timestamp() - TREND_WINDOW.total_seconds()
+        for entity_id, samples in history.items():
+            buffer = self.memory.setdefault(entity_id, [])
+            buffer[:] = merge_samples(buffer, samples, cutoff)
+
+    async def _async_history(
+        self, entities: list[str], now: datetime
+    ) -> dict[str, list[tuple[float, float]]]:
+        """Readings of the last `TREND_WINDOW`, straight from the recorder."""
+        try:
+            from homeassistant.components.recorder import get_instance, history
+        except ImportError:  # the recorder can be left out of a setup
+            return {}
+
+        start = now - TREND_WINDOW
+        try:
+            raw = await get_instance(self.hass).async_add_executor_job(
+                partial(
+                    history.get_significant_states,
+                    self.hass,
+                    start,
+                    now,
+                    entities,
+                    include_start_time_state=False,
+                    significant_changes_only=False,
+                    minimal_response=False,
+                    no_attributes=True,
+                )
+            )
+        except Exception:  # noqa: BLE001 - a trend is not worth an error
+            _LOGGER.debug("Could not read history for %s", entities, exc_info=True)
+            return {}
+
+        return {
+            entity_id: _numeric(states) for entity_id, states in (raw or {}).items()
+        }
+
     def _record(self, entity_id: str, now: datetime) -> list[tuple[float, float]]:
         """Append the current reading and drop everything past the window."""
         value = self.float_state(entity_id)
@@ -124,3 +191,15 @@ class TrendProvider(EventProvider):
         return samples
 
 
+
+
+def _numeric(states) -> list[tuple[float, float]]:
+    """Keep the states that carry a number, as (timestamp, value)."""
+    samples: list[tuple[float, float]] = []
+    for state in states:
+        value = getattr(state, "state", None)
+        try:
+            samples.append((state.last_updated.timestamp(), float(value)))
+        except (AttributeError, TypeError, ValueError):
+            continue  # "unknown", "unavailable" or a non-numeric reading
+    return samples

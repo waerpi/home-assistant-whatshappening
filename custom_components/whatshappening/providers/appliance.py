@@ -29,6 +29,7 @@ from ..const import (
     KIND_APPLIANCE,
 )
 from ..models import UpcomingEvent
+from ..predict import minutes_from
 from .base import EventProvider
 
 # Short dips below the threshold are normal mid-cycle (a washing machine
@@ -50,6 +51,8 @@ class ApplianceProvider(EventProvider):
     """Predicts when a running appliance finishes."""
 
     name = "appliance"
+    # When a cycle started can only be known by having watched it start.
+    persist = True
 
     @property
     def entities(self) -> list[str]:
@@ -129,7 +132,7 @@ class ApplianceProvider(EventProvider):
     def _track(self, entity_id: str, now: datetime) -> dict | None:
         """Update and return the current run for an appliance, if any."""
         power = self.float_state(entity_id)
-        run = self.memory.get(entity_id)
+        run = self._restored(entity_id, now)
 
         if power is not None and power >= self.threshold:
             if run is None:
@@ -145,6 +148,31 @@ class ApplianceProvider(EventProvider):
 
         del self.memory[entity_id]
         return None
+
+    def _restored(self, entity_id: str, now: datetime) -> dict | None:
+        """The run in memory, unless it is too old to still be the same one.
+
+        A run read back from disk may predate a long shutdown. Anything that
+        has been out of touch for longer than a whole cycle is over, whatever
+        the appliance is drawing now — treating it as current would date the
+        next cycle back to before the restart.
+        """
+        run = self.memory.get(entity_id)
+        if run is None:
+            return None
+
+        started = run.get("started_at")
+        last_active = run.get("last_active") or started
+        if started is None or last_active is None:
+            del self.memory[entity_id]
+            return None
+
+        if now - last_active > self.cycle:
+            del self.memory[entity_id]
+            return None
+
+        run["last_active"] = last_active
+        return run
 
     # --- remaining time sensors -----------------------------------------
 
@@ -164,14 +192,12 @@ class ApplianceProvider(EventProvider):
                     return dt_util.as_local(when)
                 continue
 
-            minutes = self.float_state(entity_id)
+            minutes = minutes_from(
+                self.float_state(entity_id),
+                state.attributes.get("unit_of_measurement"),
+            )
             if minutes is None or minutes <= 0:
                 continue
-            unit = str(state.attributes.get("unit_of_measurement") or "min").lower()
-            if unit in ("s", "sec", "seconds"):
-                return now + timedelta(seconds=minutes)
-            if unit in ("h", "hour", "hours"):
-                return now + timedelta(hours=minutes)
             return now + timedelta(minutes=minutes)
         return None
 

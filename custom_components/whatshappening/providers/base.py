@@ -22,6 +22,11 @@ class EventProvider:
 
     name: str = "provider"
 
+    #: Whether this provider's memory is worth writing to disk. Only set it
+    #: where the memory holds something that cannot be looked up again after
+    #: a restart, and where everything in it survives a JSON round trip.
+    persist: bool = False
+
     def __init__(self, hass: HomeAssistant, options: dict, memory: dict) -> None:
         self.hass = hass
         self.options = options

@@ -60,3 +60,46 @@ def parse_offset(value) -> timedelta:
     sign = -1 if match.group("sign") == "-" else 1
     hours, minutes, seconds = (int(part or 0) for part in match.groups()[1:])
     return sign * timedelta(hours=hours, minutes=minutes, seconds=seconds)
+
+
+# Units a "minutes to go" sensor may report in. Anything unknown — and the
+# empty unit, which is what a template sensor usually has — counts as
+# minutes, which is what the integrations in this space overwhelmingly use.
+SECOND_UNITS = frozenset({"s", "sec", "secs", "second", "seconds", "sekunden"})
+MINUTE_UNITS = frozenset({"min", "mins", "minute", "minutes", "minuten"})
+HOUR_UNITS = frozenset({"h", "hr", "hrs", "hour", "hours", "std", "stunde", "stunden"})
+
+
+def minutes_from(value: float | None, unit: str | None) -> float | None:
+    """Convert a duration sensor's reading to minutes.
+
+    Travel-time and remaining-time sensors disagree about their unit — Waze
+    reports minutes, some HERE and template sensors report seconds — so the
+    reading is only meaningful together with `unit_of_measurement`.
+    """
+    if value is None:
+        return None
+    key = str(unit or "").strip().lower().rstrip(".")
+    if key in SECOND_UNITS:
+        return value / 60
+    if key in HOUR_UNITS:
+        return value * 60
+    return value
+
+
+def merge_samples(
+    primary: list[tuple[float, float]],
+    secondary: list[tuple[float, float]],
+    cutoff: float | None = None,
+) -> list[tuple[float, float]]:
+    """Combine two (timestamp, value) series into one ordered series.
+
+    `primary` wins where both carry a reading for the same timestamp, which
+    is what keeps a live reading ahead of the recorder's copy of it. Samples
+    older than `cutoff` are dropped.
+    """
+    merged: dict[float, float] = {float(x): float(y) for x, y in secondary}
+    merged.update({float(x): float(y) for x, y in primary})
+    if cutoff is not None:
+        merged = {x: y for x, y in merged.items() if x >= cutoff}
+    return sorted(merged.items())

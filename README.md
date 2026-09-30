@@ -110,6 +110,11 @@ Everything can be changed later via *Configure*.
 | `sensor.what_s_happening` | Number of expected events, with the full timeline in the `events` attribute |
 | `sensor.what_s_happening_next_event` | Title of the next event, details in its attributes |
 
+The timeline is rebuilt every 30 seconds, so the attributes that change with
+every refresh — `events`, `generated_at` and `in_minutes` — are kept out of
+the recorder database. They are still there for templates and for the card;
+they are simply not worth a database row twice a minute.
+
 The `events` attribute is a list ordered by time:
 
 ```yaml
@@ -153,15 +158,27 @@ registered — reload with Ctrl+Shift+R.
 directly. Otherwise it counts as running while its power draw is above the
 threshold; short pauses within a cycle (heating, spinning) of up to five
 minutes do not end the run. The finish time is the start plus the typical
-cycle length.
+cycle length. When a cycle started is something that can only be known by
+having watched it start, so it is written to disk and read back after a
+restart — a machine that was halfway through stays halfway through. A run
+that has been out of touch for longer than a whole cycle is treated as over.
 
 **Trends.** A least-squares line is fitted through the readings of the last 45
 minutes and extended to the end of the window. Changes below 0.3 units are not
 reported at all, and the fit's r² decides how much the estimate is trusted.
+The readings come from the integration's own samples, topped up once from the
+recorder at startup so a trend is there right away instead of a couple of
+refreshes later.
 
-**Arrivals.** A travel time sensor gives the minutes to get home. If a `person`
-entity can be matched to the sensor by name, the event disappears once that
-person is home.
+**Arrivals.** A travel time sensor gives the time to get home; its
+`unit_of_measurement` decides whether that is seconds, minutes or hours, and
+without one the value counts as minutes. If a `person` entity can be matched
+to the sensor by name, the event disappears once that person is home.
+
+**Calendars.** `calendar.get_events` is a service call rather than a look at
+the state machine, and for CalDAV or Google it goes over the network — so the
+answer is cached for two minutes and a correspondingly wider window is read.
+A change made in the calendar can therefore take up to two minutes to show up.
 
 **Automations.** `time` and `sun` triggers are read, including offsets and
 references to `input_datetime` helpers. Disabled automations are skipped, and
@@ -174,9 +191,9 @@ pip install -r requirements_test.txt
 pytest
 ```
 
-The prediction maths (`predict.py`) and the text catalogue (`localization.py`)
-deliberately have no Home Assistant imports, so the tests run without a full
-Home Assistant install.
+The prediction maths (`predict.py`), the text catalogue (`localization.py`)
+and the memory's JSON codec (`serialize.py`) deliberately have no Home
+Assistant imports, so the tests run without a full Home Assistant install.
 
 CI runs the tests, Home Assistant's `hassfest` manifest validation and the
 HACS repository validation.
