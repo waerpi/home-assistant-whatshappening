@@ -6,6 +6,7 @@
     "calendar",
     "input_datetime",
     "person",
+    "recorder",
     "schedule",
     "sun",
     "timer"
